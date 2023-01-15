@@ -1,51 +1,53 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { BiUserCircle } from 'react-icons/bi';
 import { BsXCircle } from 'react-icons/bs';
-import css from './ContactsList.module.css';
 import DeleteButton from 'components/DeleteButton/DeleteButton';
 import NoContactsInfo from 'components/NoContactsInfo/NoContactsInfo';
+import css from './ContactsList.module.css';
 
-const ContactsList = ({ showFilteredContacts, handleDeleteContact }) => {
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { getContacts, getFindFilter } from 'redux/selectors';
+import { deleteContact } from 'redux/contactSlice';
+
+const ContactsList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFindFilter);
+
+  const showFilteredContacts = () => {
+    const filterStr = filter.toLocaleLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filterStr)
+    );
+  };
+
+  const handleDelete = id => dispatch(deleteContact(id));
   return (
     <>
       <ul className={css.contactList}>
-        {showFilteredContacts.length ? (
-          showFilteredContacts.map(contact => (
-            <li className={css.contactItem} key={contact.id}>
-              <p className={css.contactInfoWrapper}>
-                <BiUserCircle className={css.contactIcon} />
-                <span className={css.contactName}>{contact.name}:</span>&nbsp;
-                <span className={css.contactPhone}>{contact.phone}</span>
-              </p>
+        {!contacts.length && <NoContactsInfo />}
+        {showFilteredContacts().map(contact => (
+          <li className={css.contactItem} key={contact.id}>
+            <p className={css.contactInfoWrapper}>
+              <BiUserCircle className={css.contactIcon} />
+              <span className={css.contactName}>{contact.name}:</span>&nbsp;
+              <span className={css.contactPhone}>{contact.phone}</span>
+            </p>
 
-              <DeleteButton
-                type="button"
-                onDeleteContact={handleDeleteContact}
-                id={contact.id}
-                actionText=" Delete"
-              >
-                <BsXCircle />
-              </DeleteButton>
-            </li>
-          ))
-        ) : (
-          <NoContactsInfo />
-        )}
+            <DeleteButton
+              type="button"
+              onDeleteContact={() => handleDelete(contact.id)}
+              id={contact.id}
+              actionText=" Delete"
+            >
+              <BsXCircle />
+            </DeleteButton>
+          </li>
+        ))}
       </ul>
     </>
   );
-};
-
-ContactsList.propTypes = {
-  showFilteredContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      phone: PropTypes.string.isRequired,
-      id: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  handleDeleteContact: PropTypes.func.isRequired,
 };
 
 export default ContactsList;

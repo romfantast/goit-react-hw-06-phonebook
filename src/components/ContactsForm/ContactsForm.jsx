@@ -1,69 +1,63 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { Notify } from 'notiflix';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactSlice';
 import ContactsAppCaption from 'components/ContactsAppCaption/ContactsAppCaption';
 import css from './ContactsForm.module.css';
+import { getContacts } from 'redux/selectors';
 
-const ContactsForm = ({ handleSubmitForm }) => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+const ContactsForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
   const handleContactData = e => {
-    const { name, value } = e.target;
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-      case 'phone':
-        setPhone(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const getContactFormData = e => {
     e.preventDefault();
-
-    if (handleSubmitForm(name, phone)) {
-      setName('');
-      setPhone('');
+    const form = e.target;
+    if (
+      contacts.find(
+        contact =>
+          contact.name.toLowerCase() === form.elements.name.value.toLowerCase()
+      )
+    ) {
+      return Notify.warning('This contact is already in the list');
     }
+    const contact = {
+      name: form.elements.name.value,
+      phone: form.elements.phone.value,
+    };
+    dispatch(addContact(contact));
+    form.reset();
   };
 
   return (
-    <form onSubmit={getContactFormData} className={css.form}>
-      <div className={css.inputWrapper}>
-        <input
-          type="text"
-          name="name"
-          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters"
-          required
-          value={name}
-          onChange={handleContactData}
-        />
-      </div>
-      <ContactsAppCaption>Number</ContactsAppCaption>
-      <div className={css.inputWrapper}>
-        <input
-          type="tel"
-          name="phone"
-          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-          title="Phone number must be digits"
-          required
-          onChange={handleContactData}
-          value={phone}
-        />
-      </div>
-      <button type="submit" className={css.button}>
-        Add contact
-      </button>
-    </form>
+    <>
+      <ContactsAppCaption>Name</ContactsAppCaption>
+      <form onSubmit={handleContactData} className={css.form}>
+        <div className={css.inputWrapper}>
+          <input
+            type="text"
+            name="name"
+            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+            title="Name may contain only letters"
+            required
+          />
+        </div>
+        <ContactsAppCaption>Number</ContactsAppCaption>
+        <div className={css.inputWrapper}>
+          <input
+            type="tel"
+            name="phone"
+            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+            title="Phone number must be digits"
+            required
+          />
+        </div>
+        <button type="submit" className={css.button}>
+          Add contact
+        </button>
+      </form>
+    </>
   );
-};
-
-ContactsForm.propTypes = {
-  handleSubmitForm: PropTypes.func.isRequired,
 };
 
 export default ContactsForm;

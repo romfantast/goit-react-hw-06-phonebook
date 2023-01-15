@@ -1,25 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ContactsAppCaption from '../ContactsAppCaption/ContactsAppCaption';
 import css from './InputFilterContact.module.css';
 
-const InputFilterContact = ({ handleFilterContact, filter }) => {
+import { setFindFilter } from 'redux/filterSlice';
+import { useDispatch } from 'react-redux';
+
+const InputFilterContact = () => {
+  const dispatch = useDispatch();
+
+  const handleFilter = e => {
+    const { value } = e.target;
+    dispatch(setFindFilter(value));
+  };
   return (
     <div className={css.inputWrapper}>
       <ContactsAppCaption>Find contacts by name</ContactsAppCaption>
-      <input
-        type="text"
-        name="filter"
-        onChange={handleFilterContact}
-        value={filter}
-      />
+      <input type="text" name="filter" onChange={handleFilter} />
     </div>
   );
-};
-
-InputFilterContact.propTypes = {
-  handleFilterContact: PropTypes.func.isRequired,
-  filter: PropTypes.string.isRequired,
 };
 
 export default InputFilterContact;
