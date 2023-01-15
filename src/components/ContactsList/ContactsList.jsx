@@ -15,19 +15,19 @@ const ContactsList = () => {
   const contacts = useSelector(getContacts);
   const filter = useSelector(getFindFilter);
 
-  const showFilteredContacts = () => {
-    const filterStr = filter.toLocaleLowerCase();
+  const showFilteredContacts = (() => {
+    const filterStr = filter.toLowerCase();
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filterStr)
     );
-  };
+  })();
 
   const handleDelete = id => dispatch(deleteContact(id));
   return (
     <>
       <ul className={css.contactList}>
-        {!contacts.length && <NoContactsInfo />}
-        {showFilteredContacts().map(contact => (
+        {showFilteredContacts.length === 0 && <NoContactsInfo />}
+        {showFilteredContacts.map(contact => (
           <li className={css.contactItem} key={contact.id}>
             <p className={css.contactInfoWrapper}>
               <BiUserCircle className={css.contactIcon} />

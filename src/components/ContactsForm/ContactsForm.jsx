@@ -12,21 +12,20 @@ const ContactsForm = () => {
 
   const handleContactData = e => {
     e.preventDefault();
-    const form = e.target;
+    const { name, phone } = e.currentTarget.elements;
     if (
       contacts.find(
-        contact =>
-          contact.name.toLowerCase() === form.elements.name.value.toLowerCase()
+        contact => contact.name.toLowerCase() === name.value.toLowerCase()
       )
     ) {
       return Notify.warning('This contact is already in the list');
     }
     const contact = {
-      name: form.elements.name.value,
-      phone: form.elements.phone.value,
+      name: name.value,
+      phone: phone.value,
     };
     dispatch(addContact(contact));
-    form.reset();
+    e.currentTarget.reset();
   };
 
   return (
